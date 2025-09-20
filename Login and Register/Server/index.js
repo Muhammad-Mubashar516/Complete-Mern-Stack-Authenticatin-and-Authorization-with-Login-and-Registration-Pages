@@ -4,7 +4,10 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const dotenv = require("dotenv");
 const UserModel = require("./models/User");
+
+dotenv.config(); // <-- .env file load karega
 
 const app = express();
 
@@ -14,7 +17,7 @@ app.use(express.json());
 // Middleware to enable CORS (Cross-Origin Resource Sharing)
 app.use(
   cors({
-    origin: ["http://localhost:5173"], // Ensure this is the correct frontend port
+    origin: ["http://localhost:5173"], // yahan apni frontend URL rakhna
     methods: ["GET", "POST"],
     credentials: true,
   })
@@ -23,22 +26,19 @@ app.use(
 // Middleware to parse cookies
 app.use(cookieParser());
 
-// Connect to MongoDB using Mongoose
+// ✅ Connect to MongoDB Atlas using .env MONGO_URI
 mongoose
-  .connect("mongodb://localhost:27017/employee", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Could not connect to MongoDB", err));
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Connected to MongoDB Atlas"))
+  .catch((err) => console.error("❌ Could not connect to MongoDB:", err));
 
 // Middleware to verify user
-const varifyUser = (req, res, next) => {
-  const token = req.cookies.token; // Corrected to req.cookies
+const verifyUser = (req, res, next) => {
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: "Token is missing" });
   } else {
-    jwt.verify(token, "jwt-secret-key", (err, decode) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
       if (err) {
         return res.status(403).json({ message: "Error with token" });
       } else {
@@ -52,7 +52,7 @@ const varifyUser = (req, res, next) => {
   }
 };
 
-app.get('/dashboard', varifyUser, (req, res) => {
+app.get("/dashboard", verifyUser, (req, res) => {
   res.json({ message: "Success" });
 });
 
@@ -67,7 +67,7 @@ app.post("/register", async (req, res) => {
     }
 
     const hash = await bcrypt.hash(password, 10);
-    const user = await UserModel.create({ name, email, password: hash });
+    await UserModel.create({ name, email, password: hash });
     res.json({ status: "OK" });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -86,7 +86,7 @@ app.post("/login", async (req, res) => {
       if (isPasswordValid) {
         const token = jwt.sign(
           { email: user.email, role: user.role },
-          "jwt-secret-key",
+          process.env.JWT_SECRET,
           { expiresIn: "1d" }
         );
         res.cookie("token", token, { httpOnly: true });
@@ -103,6 +103,7 @@ app.post("/login", async (req, res) => {
 });
 
 // Start the server
-app.listen(3001, () => {
-  console.log("Server is Running on port 3001");
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`🚀 Server is Running on port ${PORT}`);
 });
