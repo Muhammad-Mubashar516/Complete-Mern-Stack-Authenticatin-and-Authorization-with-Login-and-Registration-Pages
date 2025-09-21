@@ -1,0 +1,52 @@
+/* Container styling */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* vertical center */
+  align-items: center;     /* horizontal center */
+  height: 100vh;           /* full screen height */
+  text-align: center;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: white;
+  padding: 20px;
+}
+
+/* Heading */
+.home-container h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+/* Paragraph */
+.home-container p {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+/* Button group */
+.button-group {
+  display: flex;
+  gap: 15px; /* space between buttons */
+}
+
+/* Buttons */
+.home-button {
+  background-color: white;
+  color: #2575fc;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: #2575fc;
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
